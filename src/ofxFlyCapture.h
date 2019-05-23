@@ -1,9 +1,12 @@
 #pragma once
 
 #include "ofVideoGrabber.h"
+#include "ofParameter.h"
 
 namespace FlyCapture2 {
 	class Camera;
+	class Image;
+	struct Property;
 }
 
 class ofxFlyCapture : public ofBaseVideoGrabber
@@ -15,7 +18,10 @@ public:
 	// from ofBaseVideoGrabber
 	/// \brief Get a list of available video grabber devices.
 	/// \returns a std::vector of ofVideoDevice objects.
-	vector<ofVideoDevice>	listDevices() const;
+	vector<ofVideoDevice>	listDevices() const {
+		return ofxFlyCapture::listDevices(false);
+	}
+	static vector<ofVideoDevice> listDevices(bool fillFormats);
 
 	/// \brief Set up the grabber with the requested width and height.
 	///
@@ -27,7 +33,10 @@ public:
 	/// \param w the requested width.
 	/// \param h the requested height.
 	/// \returns true if the video grabber was set up successfully.
-	bool setup(int w, int h);
+	bool setup(int w, int h) {
+		return setup(w, h, 100.f);
+	}
+	bool setup(int w, int h, float speedPct = 100.f);
 
 	/// \brief Get the video grabber's height.
 	/// \returns the video grabber's height.
@@ -83,6 +92,13 @@ public:
 	/// \brief Update the object's state.
 	void update();
 
+	ofParameterGroup getProperties();
+	void getProperties(ofParameterGroup & props);
+
+	FlyCapture2::Property getProperty(string name);
+	void getProperty(ofAbstractParameter & prop);
+	void setProperty(ofAbstractParameter & prop);
+
 private:
 	bool bChooseDevice;
 	int deviceID;
@@ -93,6 +109,8 @@ private:
 	bool bIsFrameNew;
 	bool bGrabberInitied;
 	ofPixels pixels;
+	shared_ptr<class FlyCapture2::Image> tmpBuffer;
+	unsigned int microSeconds;
 };
 
 class ofxFlyCaptureGrabber : public ofVideoGrabber {
